@@ -8,14 +8,14 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import './styles/index.css'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <App />
-          <Toaster position="top-right" />
-        </AuthProvider>
-      </ThemeProvider>
-    </BrowserRouter>
-  </StrictMode>,
+	<StrictMode>
+		<BrowserRouter>
+			<ThemeProvider>
+				<AuthProvider>
+					<App />
+					<Toaster position="top-right" />
+				</AuthProvider>
+			</ThemeProvider>
+		</BrowserRouter>
+	</StrictMode>,
 )
