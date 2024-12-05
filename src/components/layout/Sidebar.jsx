@@ -47,7 +47,7 @@ export default function Sidebar() {
           onClick={logout}
         >
           <RiLogoutBoxLine className="w-6 h-6" />
-          <span className="nav-text opacity-0 group-hover:opacity-100">Logout</span>
+          <span className="nav-text opacity-0 group-hover:opacity-100">Sair</span>
         </motion.div>
       </nav>
     </motion.div>

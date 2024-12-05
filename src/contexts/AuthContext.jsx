@@ -18,13 +18,13 @@ export function AuthProvider({ children }) {
       localStorage.setItem('token', data.token)
       navigate('/dashboard')
       showToast.success(
-        'Welcome back!',
-        'You have successfully logged in'
+        'Bem vindo de volta!',
+        'Você fez login com sucesso'
       )
     } catch (error) {
       showToast.error(
-        'Authentication Failed',
-        error.message || 'Invalid credentials'
+        'Falha na autenticação',
+        error.message || 'Credenciais inválidas'
       )
       throw error
     } finally {
@@ -37,8 +37,8 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('token')
     navigate('/login')
     showToast.info(
-      'Logged Out',
-      'You have been successfully logged out'
+      'Sair',
+      'Você saiu do sistema com sucesso.'
     )
   }, [navigate])
 

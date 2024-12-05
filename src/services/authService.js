@@ -11,13 +11,13 @@ export async function loginUser({ email, password }) {
   // Simulating API call
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      if (email === 'admin@example.com' && password === 'password') {
+      if (email === 'admin@example.com' && password === '102030') {
         resolve({
           user: MOCK_USER,
           token: MOCK_TOKEN
         })
       } else {
-        reject(new Error('Invalid credentials'))
+        reject(new Error('Credências inválidas'))
       }
     }, 1000)
   })

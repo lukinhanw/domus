@@ -13,10 +13,10 @@ export default function Dashboard() {
       >
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Welcome back, {user?.name}
+            Bem vindo de volta, {user?.name}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Here's what's happening in your condominium
+            Veja o que está acontecendo no seu condomínio
           </p>
         </div>
 
@@ -27,7 +27,7 @@ export default function Dashboard() {
             className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm"
           >
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Pending Approvals
+             Aprovações pendentes
             </h3>
             <p className="text-3xl font-bold text-primary-500">12</p>
           </motion.div>
@@ -37,7 +37,7 @@ export default function Dashboard() {
             className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm"
           >
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Active Residents
+              Residentes Ativos
             </h3>
             <p className="text-3xl font-bold text-primary-500">156</p>
           </motion.div>
@@ -47,7 +47,7 @@ export default function Dashboard() {
             className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm"
           >
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-              Monthly Revenue
+              Receita Mensal
             </h3>
             <p className="text-3xl font-bold text-primary-500">$24,500</p>
           </motion.div>
@@ -56,14 +56,14 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-            Recent Activity
+           Atividade recente
           </h2>
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden">
             <div className="divide-y divide-gray-200 dark:divide-gray-700">
               {[1, 2, 3].map((item) => (
                 <div key={item} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                  <p className="text-gray-900 dark:text-white">New maintenance request submitted</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">2 hours ago</p>
+                  <p className="text-gray-900 dark:text-white">Nova solicitação de manutenção enviada</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">2 horas atrás</p>
                 </div>
               ))}
             </div>
