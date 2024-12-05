@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import logoSquareDark from '../../assets/images/logo-square-dark.png'
 
 export function LoginCard({ children }) {
 	return (
@@ -27,12 +28,16 @@ export function LoginCard({ children }) {
 							initial={{ scale: 0 }}
 							animate={{ scale: 1 }}
 							transition={{ type: "spring", stiffness: 200, damping: 15 }}
-							className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-primary-400 to-primary-600 rounded-2xl flex items-center justify-center"
+							className="w-24 h-24 mx-auto mb-4 rounded-2xl flex items-center justify-center overflow-hidden"
 						>
-							<span className="text-2xl font-bold text-white">CM</span>
+							<img 
+								src={logoSquareDark} 
+								alt="Logo" 
+								className="w-full h-full object-contain"
+							/>
 						</motion.div>
 						<h2 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700">
-							Bem vindo de volta
+							Bem vindo!
 						</h2>
 						<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
 							Faça login na sua conta
