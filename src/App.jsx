@@ -35,7 +35,7 @@ export default function App() {
 		<SidebarContext.Provider value={{ isExpanded, setIsExpanded }}>
 			<div className="min-h-screen bg-gradient-to-bl from-gray-100 to-gray-200 dark:bg-gray-900">
 				{shouldShowSidebar && <Sidebar />}
-				<main className={`transition-all duration-300 ${shouldShowSidebar ? (isExpanded ? 'ml-64' : 'ml-20') : ''}`}>
+				<main className={shouldShowSidebar ? `transition-all duration-300 ${isExpanded ? 'ml-64' : 'ml-20'}` : ''}>
 					<Suspense fallback={
 						<div className="flex items-center justify-center min-h-screen">
 							<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
