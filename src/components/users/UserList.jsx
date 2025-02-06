@@ -1,6 +1,7 @@
-import { motion, AnimatePresence } from 'framer-motion'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
+import { RiEditLine, RiDeleteBinLine } from 'react-icons/ri'
+import { Tooltip } from '../ui/Tooltip'
 
 const roleLabels = {
   admin: 'Administrador',
@@ -37,61 +38,66 @@ export function UserList({ users, onEdit, onDelete }) {
             </tr>
           </thead>
           <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <AnimatePresence>
-              {users.map((user) => (
-                <motion.tr
-                  key={user.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900 dark:text-white">
-                      {user.name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {user.cpf}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {roleLabels[user.role]}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.status
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {user.status ? 'Ativo' : 'Inativo'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      {format(new Date(user.createdAt), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => onEdit(user)}
-                      className="text-primary-600 hover:text-primary-900 mr-4"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => onDelete(user)}
-                      className="text-danger-600 hover:text-danger-900"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </motion.tr>
-              ))}
-            </AnimatePresence>
+            {users.map((user) => (
+              <tr
+                key={user.id}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white">
+                    {user.name}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {user.cpf}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {roleLabels[user.role]}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    user.status
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {user.status ? 'Ativo' : 'Inativo'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {format(new Date(user.createdAt), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <div className="flex items-center justify-end space-x-4">
+                    <Tooltip content="Editar usuário" position="left">
+                      <button
+                        onClick={() => onEdit(user)}
+                        className="p-1.5 rounded-full text-primary-600 hover:text-primary-900 
+                                 hover:bg-primary-50 dark:hover:bg-primary-900/20
+                                 transition-colors duration-200"
+                      >
+                        <RiEditLine className="w-5 h-5" />
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Excluir usuário" position="left">
+                      <button
+                        onClick={() => onDelete(user)}
+                        className="p-1.5 rounded-full text-danger-600 hover:text-danger-900
+                                 hover:bg-danger-50 dark:hover:bg-danger-900/20
+                                 transition-colors duration-200"
+                      >
+                        <RiDeleteBinLine className="w-5 h-5" />
+                      </button>
+                    </Tooltip>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
