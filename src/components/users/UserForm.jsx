@@ -3,12 +3,14 @@ import { RiUser3Line, RiShieldUserLine, RiUpload2Line, RiCloseLine } from 'react
 import Select from 'react-select'
 import { Input } from '../ui/Input'
 import { Checkbox } from '../ui/Checkbox'
+import AsyncSelect from 'react-select/async'
+import { showToast } from '../../utils/toast'
 
 const roleOptions = [
     { value: 'admin', label: 'Administrador' },
     { value: 'sindico', label: 'Síndico' },
     { value: 'funcionario', label: 'Funcionário' },
-    { value: 'morador', label: 'Morador' },
+    { value: 'morador', label: 'Proprietário' },
     { value: 'inquilino', label: 'Inquilino' }
 ]
 
@@ -101,7 +103,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
         notifications: user?.notifications ?? true,
         cargoFuncionario: user?.cargoFuncionario || '',
         proprietarioId: user?.proprietarioId || '',
-        files: user?.files || []
+        files: user?.files || [],
+        veiculos: user?.veiculos || [{ tipo: '', marca: '', modelo: '', placa: '', cor: '' }]
     })
 
     const [errors, setErrors] = useState({})
@@ -167,6 +170,17 @@ export function UserForm({ user, onSubmit, onCancel }) {
         if (formData.files.some(file => file.size > 10 * 1024 * 1024)) {
             newErrors.files = 'Alguns arquivos excedem o limite de 10MB'
         }
+
+        // Validação dos veículos
+        if (formData.veiculos.length > 0) {
+            formData.veiculos.forEach((veiculo, index) => {
+                if (veiculo.placa && !veiculo.cor) {
+                    if (!newErrors.veiculos) newErrors.veiculos = {}
+                    newErrors.veiculos[index] = { cor: 'Cor do veículo é obrigatória' }
+                }
+            })
+        }
+
         setErrors(newErrors)
         return Object.keys(newErrors).length === 0
     }
@@ -175,6 +189,29 @@ export function UserForm({ user, onSubmit, onCancel }) {
         e.preventDefault()
         if (validateForm()) {
             onSubmit(formData)
+        }
+    }
+
+    const consultarPlaca = async (placa, index) => {
+        try {
+            // Simulação temporária
+            const mockResponse = {
+                marca: 'VOLKSWAGEN',
+                modelo: 'GOL 1.0',
+                tipo: 'AUTOMOVEL'
+            }
+            
+            const newVeiculos = [...formData.veiculos]
+            newVeiculos[index] = {
+                ...newVeiculos[index],
+                marca: mockResponse.marca,
+                modelo: mockResponse.modelo,
+                tipo: mockResponse.tipo
+            }
+            setFormData({ ...formData, veiculos: newVeiculos })
+            showToast.success('Veículo encontrado', 'Dados preenchidos automaticamente.')
+        } catch (error) {
+            showToast.error('Erro na consulta', 'Não foi possível consultar a placa. Verifique se a placa está correta.')
         }
     }
 
@@ -196,8 +233,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
                         </div>
                         <div>
                             <h2 className="text-3xl font-bold text-white/90">
-                                {user ? 'Editar Usuário' : 'Novo Usuário'}
-                            </h2>
+                        {user ? 'Editar Usuário' : 'Novo Usuário'}
+                    </h2>
                             <p className="text-white/70 mt-1">
                                 {user ? 'Atualize as informações do usuário conforme necessário' : 'Preencha as informações para criar um novo usuário'}
                             </p>
@@ -304,13 +341,13 @@ export function UserForm({ user, onSubmit, onCancel }) {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div className="md:col-span-2">
-                                    <Input
+                        <Input
                                         label="Nome Completo"
-                                        required
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        error={errors.name}
-                                    />
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            error={errors.name}
+                        />
                                 </div>
                                 <Input
                                     type="date"
@@ -320,12 +357,14 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                     onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
                                     error={errors.dataNascimento}
                                 />
-                                <Input
-                                    label="CPF"
-                                    required
-                                    value={formData.cpf}
-                                    onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                                    error={errors.cpf}
+                        <Input
+                            label="CPF"
+                            required
+                            value={formData.cpf}
+                            onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                            error={errors.cpf}
+                                    mask="cpf"
+                                    placeholder="000.000.000-00"
                                 />
                                 <Input
                                     label="E-mail"
@@ -341,6 +380,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                     value={formData.phone}
                                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                                     error={errors.phone}
+                                    mask="phone"
+                                    placeholder="(00) 00000-0000"
                                 />
                             </div>
                         </div>
@@ -412,6 +453,125 @@ export function UserForm({ user, onSubmit, onCancel }) {
                             </div>
                         )}
 
+                        {/* Seção: Veículos */}
+                        {(formData.role === 'morador' || formData.role === 'inquilino') && (
+                            <div>
+                                <div className="flex items-center justify-between text-primary-600 dark:text-primary-400 mb-4">
+                                    <div className="flex items-center space-x-2">
+                                        <RiShieldUserLine className="w-5 h-5" />
+                                        <h3 className="text-lg font-semibold">Veículos</h3>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFormData(prev => ({
+                                            ...prev,
+                                            veiculos: [...prev.veiculos, { tipo: 'carro', marca: '', modelo: '', placa: '', cor: '' }]
+                                        }))}
+                                        className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 
+                                                 dark:hover:text-primary-300 transition-colors duration-200"
+                                    >
+                                        + Adicionar Veículo
+                                    </button>
+                                </div>
+                                <div className="space-y-4">
+                                    {formData.veiculos.map((veiculo, index) => (
+                                        <div key={index} className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="w-full">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <Input
+                                                            label="Placa"
+                                                            value={veiculo.placa}
+                                                            onChange={(e) => {
+                                                                const newVeiculos = [...formData.veiculos]
+                                                                newVeiculos[index].placa = e.target.value
+                                                                setFormData({ ...formData, veiculos: newVeiculos })
+                                                                
+                                                                const placa = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
+                                                                if (placa.length === 7) {
+                                                                    consultarPlaca(placa, index)
+                                                                }
+                                                            }}
+                                                            placeholder="ABC-1234 ou ABC1D23"
+                                                            mask="placa"
+                                                        />
+                                                        <Input
+                                                            label="Cor"
+                                                            value={veiculo.cor}
+                                                            onChange={(e) => {
+                                                                const newVeiculos = [...formData.veiculos]
+                                                                newVeiculos[index].cor = e.target.value
+                                                                setFormData({ ...formData, veiculos: newVeiculos })
+                                                                
+                                                                // Limpa o erro quando o usuário começa a digitar
+                                                                if (errors.veiculos?.[index]?.cor) {
+                                                                    const newErrors = { ...errors }
+                                                                    if (newErrors.veiculos?.[index]) {
+                                                                        delete newErrors.veiculos[index].cor
+                                                                        if (Object.keys(newErrors.veiculos[index]).length === 0) {
+                                                                            delete newErrors.veiculos[index]
+                                                                        }
+                                                                        if (Object.keys(newErrors.veiculos).length === 0) {
+                                                                            delete newErrors.veiculos
+                                                                        }
+                                                                    }
+                                                                    setErrors(newErrors)
+                                                                }
+                                                            }}
+                                                            placeholder="Ex: Prata"
+                                                            required={!!veiculo.placa}
+                                                            error={errors.veiculos?.[index]?.cor}
+                                                        />
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                                        <Input
+                                                            label="Tipo"
+                                                            value={veiculo.tipo}
+                                                            onChange={(e) => {
+                                                                const newVeiculos = [...formData.veiculos]
+                                                                newVeiculos[index].tipo = e.target.value
+                                                                setFormData({ ...formData, veiculos: newVeiculos })
+                                                            }}
+                                                            disabled
+                                                        />
+                                                        <Input
+                                                            label="Marca"
+                                                            value={veiculo.marca}
+                                                            onChange={(e) => {
+                                                                const newVeiculos = [...formData.veiculos]
+                                                                newVeiculos[index].marca = e.target.value
+                                                                setFormData({ ...formData, veiculos: newVeiculos })
+                                                            }}
+                                                            disabled
+                                                        />
+                                                        <Input
+                                                            label="Modelo"
+                                                            value={veiculo.modelo}
+                                                            onChange={(e) => {
+                                                                const newVeiculos = [...formData.veiculos]
+                                                                newVeiculos[index].modelo = e.target.value
+                                                                setFormData({ ...formData, veiculos: newVeiculos })
+                                                            }}
+                                                            disabled
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const newVeiculos = formData.veiculos.filter((_, i) => i !== index)
+                                                        setFormData({ ...formData, veiculos: newVeiculos })
+                                                    }}
+                                                    className="ml-4 text-danger-500 hover:text-danger-700 transition-colors duration-200"
+                                                >
+                                                    <RiCloseLine className="w-5 h-5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Seção: Senha de Acesso */}
                         {!user && (
@@ -421,14 +581,14 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                     <h3 className="text-lg font-semibold">Senha de Acesso</h3>
                                 </div>
                                 <div className="max-w-md">
-                                    <Input
-                                        type="password"
-                                        label="Senha"
-                                        required
-                                        value={formData.password}
-                                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                        error={errors.password}
-                                    />
+                            <Input
+                                type="password"
+                                label="Senha"
+                                required
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                error={errors.password}
+                            />
                                     <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                         A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas e números
                                     </p>
@@ -441,13 +601,13 @@ export function UserForm({ user, onSubmit, onCancel }) {
                             <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
                                 <RiShieldUserLine className="w-5 h-5" />
                                 <h3 className="text-lg font-semibold">Configurações</h3>
-                            </div>
+                        </div>
                             <div className="space-y-4">
-                                <Checkbox
-                                    label="Usuário Ativo"
-                                    checked={formData.status}
-                                    onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
-                                />
+                        <Checkbox
+                            label="Usuário Ativo"
+                            checked={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
+                        />
                                 <Checkbox
                                     label="Receber notificações"
                                     description="O usuário receberá notificações sobre atualizações e eventos importantes"
@@ -463,23 +623,23 @@ export function UserForm({ user, onSubmit, onCancel }) {
             {/* Footer Fixo */}
             <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-20">
                 <div className="max-w-2xl mx-auto px-4 py-4 flex justify-center space-x-4">
-                    <button
-                        type="button"
-                        onClick={onCancel}
+                        <button
+                            type="button"
+                            onClick={onCancel}
                         className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
                                  text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700
                                  transition-colors duration-200"
-                    >
-                        Cancelar
-                    </button>
-                    <button
+                        >
+                            Cancelar
+                        </button>
+                        <button
                         type="button"
-                        onClick={handleSubmit}
-                        className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg
+                            onClick={handleSubmit}
+                        className="px-6 py-2.5 bg-primary-500 hover:bg-primary-700 text-white rounded-lg
                                  transition-colors duration-200 font-medium"
-                    >
-                        {user ? 'Salvar' : 'Cadastrar'}
-                    </button>
+                        >
+                            {user ? 'Salvar' : 'Cadastrar'}
+                        </button>
                 </div>
             </div>
         </div>

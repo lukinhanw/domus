@@ -1,13 +1,58 @@
 import { forwardRef } from 'react'
 import clsx from 'clsx'
 
+const masks = {
+	cpf: value => {
+		return value
+			.replace(/\D/g, '')
+			.replace(/(\d{3})(\d)/, '$1.$2')
+			.replace(/(\d{3})(\d)/, '$1.$2')
+			.replace(/(\d{3})(\d{1,2})/, '$1-$2')
+			.replace(/(-\d{2})\d+?$/, '$1')
+	},
+	phone: value => {
+		return value
+			.replace(/\D/g, '')
+			.replace(/(\d{2})(\d)/, '($1) $2')
+			.replace(/(\d{5})(\d)/, '$1-$2')
+			.replace(/(-\d{4})\d+?$/, '$1')
+	},
+	placa: value => {
+		// Remove caracteres não alfanuméricos e converte para maiúsculo
+		value = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+		
+		// Se o comprimento for maior que 4 e o 4º caractere for uma letra,
+		// assume formato Mercosul (ABC1D23)
+		if (value.length > 4 && /[A-Z]/.test(value[4])) {
+			return value
+				.replace(/([A-Z]{3})(\d)([A-Z])(\d{2}).*/, '$1$2$3$4')
+				.substring(0, 7)
+		}
+		
+		// Caso contrário, assume formato antigo (ABC-1234)
+		return value
+			.replace(/([A-Z]{3})(\d{4}).*/, '$1-$2')
+			.substring(0, 8)
+	}
+}
+
 export const Input = forwardRef(({
 	error,
 	label,
 	required,
 	className,
+	mask,
+	onChange,
+	value,
 	...props
 }, ref) => {
+	const handleChange = (e) => {
+		if (mask && masks[mask]) {
+			e.target.value = masks[mask](e.target.value)
+		}
+		onChange?.(e)
+	}
+
 	return (
 		<div className="w-full">
 			{label && (
@@ -29,6 +74,8 @@ export const Input = forwardRef(({
 						"bg-white dark:bg-gray-800 text-gray-900 dark:text-white",
 						className
 					)}
+					value={value}
+					onChange={handleChange}
 					{...props}
 				/>
 			</div>

@@ -4,6 +4,7 @@ import { Input } from '../ui/Input'
 import { Checkbox } from '../ui/Checkbox'
 import { useAuth } from '../../contexts/AuthContext'
 import { showToast } from '../../utils/toast'
+import { RiMailLine, RiLockLine, RiEyeLine, RiEyeOffLine } from 'react-icons/ri'
 
 export function LoginForm() {
 	const [step, setStep] = useState(1)
@@ -16,6 +17,7 @@ export function LoginForm() {
 	)
 	const [errors, setErrors] = useState({})
 	const { login, loading } = useAuth()
+	const [showPassword, setShowPassword] = useState(false)
 
 	useEffect(() => {
 		if (rememberMe) {
@@ -86,19 +88,34 @@ export function LoginForm() {
 						onSubmit={handleEmailSubmit}
 						className="space-y-6"
 					>
-						<Input
-							id="email"
-							type="email"
-							label="Email"
-							required
-							autoFocus
-							error={errors.email}
-							value={credentials.email}
-							onChange={(e) => {
-								setCredentials(prev => ({ ...prev, email: e.target.value }))
-								if (errors.email) setErrors({})
-							}}
-						/>
+						<motion.div
+							initial={{ opacity: 0, x: -20 }}
+							animate={{ opacity: 1, x: 0 }}
+							transition={{ duration: 0.3 }}
+						>
+							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+								E-mail
+							</label>
+							<div className="relative">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+									<RiMailLine className="h-5 w-5 text-gray-400" />
+								</div>
+								<input
+									type="email"
+									value={credentials.email}
+									onChange={(e) => {
+										setCredentials(prev => ({ ...prev, email: e.target.value }))
+										if (errors.email) setErrors({})
+									}}
+									className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+											 focus:ring-2 focus:ring-primary-500 focus:border-transparent
+											 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+									placeholder="seu@email.com"
+									required
+								/>
+							</div>
+						</motion.div>
+
 						<motion.button
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
@@ -131,19 +148,44 @@ export function LoginForm() {
 								</button>
 							</div>
 
-							<Input
-								id="password"
-								type="password"
-								label="Senha"
-								required
-								autoFocus
-								error={errors.password}
-								value={credentials.password}
-								onChange={(e) => {
-									setCredentials(prev => ({ ...prev, password: e.target.value }))
-									if (errors.password) setErrors({})
-								}}
-							/>
+							<motion.div
+								initial={{ opacity: 0, x: -20 }}
+								animate={{ opacity: 1, x: 0 }}
+								transition={{ duration: 0.3, delay: 0.1 }}
+							>
+								<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+									Senha
+								</label>
+								<div className="relative">
+									<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+										<RiLockLine className="h-5 w-5 text-gray-400" />
+									</div>
+									<input
+										type={showPassword ? "text" : "password"}
+										value={credentials.password}
+										onChange={(e) => {
+											setCredentials(prev => ({ ...prev, password: e.target.value }))
+											if (errors.password) setErrors({})
+										}}
+										className="block w-full pl-10 pr-10 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+												 focus:ring-2 focus:ring-primary-500 focus:border-transparent
+												 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+										placeholder="••••••••"
+										required
+									/>
+									<button
+										type="button"
+										onClick={() => setShowPassword(!showPassword)}
+										className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+									>
+										{showPassword ? (
+											<RiEyeOffLine className="h-5 w-5" />
+										) : (
+											<RiEyeLine className="h-5 w-5" />
+										)}
+									</button>
+								</div>
+							</motion.div>
 
 							<Checkbox
 								label="Lembrar-me"

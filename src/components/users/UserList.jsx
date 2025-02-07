@@ -7,7 +7,7 @@ const roleLabels = {
   admin: 'Administrador',
   sindico: 'Síndico',
   funcionario: 'Funcionário',
-  morador: 'Morador'
+  morador: 'Proprietário'
 }
 
 export function UserList({ users, onEdit, onDelete }) {
