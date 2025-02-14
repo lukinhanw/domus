@@ -333,13 +333,13 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <div className="md:col-span-2">
-                                                <Input
+                        <Input
                                                     label="Nome Completo"
-                                                    required
-                                                    value={formData.name}
-                                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                    error={errors.name}
-                                                />
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                            error={errors.name}
+                        />
                                             </div>
                                             <Input
                                                 type="date"
@@ -349,12 +349,12 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                                 onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
                                                 error={errors.dataNascimento}
                                             />
-                                            <Input
-                                                label="CPF"
-                                                required
-                                                value={formData.cpf}
-                                                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                                                error={errors.cpf}
+                        <Input
+                            label="CPF"
+                            required
+                            value={formData.cpf}
+                            onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                            error={errors.cpf}
                                                 mask="cpf"
                                                 placeholder="000.000.000-00"
                                             />
@@ -566,40 +566,40 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                     )}
 
                                     {/* Seção: Senha de Acesso */}
-                                    {!user && (
+                        {!user && (
                                         <div>
                                             <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
                                                 <RiShieldUserLine className="w-5 h-5" />
                                                 <h3 className="text-lg font-semibold">Senha de Acesso</h3>
                                             </div>
                                             <div className="max-w-md">
-                                                <Input
-                                                    type="password"
-                                                    label="Senha"
-                                                    required
-                                                    value={formData.password}
-                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                                    error={errors.password}
-                                                />
+                            <Input
+                                type="password"
+                                label="Senha"
+                                required
+                                value={formData.password}
+                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                error={errors.password}
+                            />
                                                 <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                                     A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas e números
                                                 </p>
                                             </div>
                                         </div>
-                                    )}
+                        )}
 
                                     {/* Seção: Configurações */}
-                                    <div>
+                        <div>
                                         <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
                                             <RiShieldUserLine className="w-5 h-5" />
                                             <h3 className="text-lg font-semibold">Configurações</h3>
-                                        </div>
+                        </div>
                                         <div className="space-y-4">
-                                            <Checkbox
-                                                label="Usuário Ativo"
-                                                checked={formData.status}
-                                                onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
-                                            />
+                        <Checkbox
+                            label="Usuário Ativo"
+                            checked={formData.status}
+                            onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
+                        />
                                             <Checkbox
                                                 label="Receber notificações"
                                                 description="O usuário receberá notificações sobre atualizações e eventos importantes"
@@ -618,15 +618,15 @@ export function UserForm({ user, onSubmit, onCancel }) {
             {/* Footer Fixo */}
             <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-20">
                 <div className="max-w-2xl mx-auto px-4 py-4 flex justify-center space-x-4">
-                    <button
-                        type="button"
-                        onClick={onCancel}
+                        <button
+                            type="button"
+                            onClick={onCancel}
                         className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
                                 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700
                                 transition-colors duration-200"
-                    >
+                        >
                         {showForm && !user ? 'Voltar' : 'Cancelar'}
-                    </button>
+                        </button>
                     {showForm && (
                         <button
                             type="button"
