@@ -34,18 +34,12 @@ export default function Users() {
 	}
 
 	return (
-		<div className="pl-4 pr-4 py-32">
+		<div className="pl-4 pr-4 py-4">
 			<div className="max-w-7xl mx-auto">
 				<div className="flex justify-between items-center mb-6">
 					<h1 className="text-2xl font-bold text-gray-900 dark:text-white">
 						Usuários Administrativos
 					</h1>
-					<button
-						onClick={() => navigate('/users/new')}
-						className="btn-primary"
-					>
-						Novo Usuário
-					</button>
 				</div>
 
 				<div>

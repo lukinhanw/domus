@@ -4,7 +4,7 @@ export default function Dashboard() {
 	const { user } = useAuth()
 
 	return (
-		<div className="p-4 pr-4 py-8">
+		<div className="p-4 pr-4 py-4">
 			<div className="max-w-7xl mx-auto">
 				<div className="mb-8">
 					<h1 className="text-3xl font-bold text-gray-900 dark:text-white">

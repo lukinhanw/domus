@@ -55,6 +55,13 @@
            transition-colors duration-200 focus:ring-2 focus:ring-warning-500 focus:ring-offset-2;
   }
 
+  .btn-dark {
+    @apply px-6 py-2.5 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 
+           text-white rounded-lg transition-all duration-200 
+           border border-gray-800 shadow-lg hover:shadow-xl
+           hover:scale-[1.02] active:scale-[0.98];
+  }
+
   .bg-gradient {
     background: linear-gradient(-45deg, #d31016, #c2252a, #2d4798, #0097cd, #009640, #5db12f);
     background-size: 400% 400%;

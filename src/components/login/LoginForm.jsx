@@ -120,7 +120,7 @@ export function LoginForm() {
 							whileHover={{ scale: 1.02 }}
 							whileTap={{ scale: 0.98 }}
 							type="submit"
-							className="btn-primary w-full"
+							className="btn-dark w-full"
 						>
 							Continuar
 						</motion.button>
@@ -200,7 +200,7 @@ export function LoginForm() {
 							whileTap={{ scale: 0.98 }}
 							type="submit"
 							disabled={loading}
-							className="btn-primary w-full flex justify-center"
+							className="btn-dark w-full flex justify-center"
 						>
 							{loading ? (
 								<svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
