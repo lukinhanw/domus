@@ -71,7 +71,8 @@ export default {
         background: {
           light: '#F9FAFB',
           dark: '#111827'
-        }
+        },
+        secondary: '#1B212F',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

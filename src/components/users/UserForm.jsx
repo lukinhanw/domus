@@ -3,14 +3,15 @@ import { RiUser3Line, RiShieldUserLine, RiUpload2Line, RiCloseLine } from 'react
 import Select from 'react-select'
 import { Input } from '../ui/Input'
 import { Checkbox } from '../ui/Checkbox'
-import AsyncSelect from 'react-select/async'
 import { showToast } from '../../utils/toast'
+import { PageHeader } from '../ui/PageHeader'
+import { motion, AnimatePresence } from 'framer-motion'
 
 const roleOptions = [
     { value: 'admin', label: 'Administrador' },
     { value: 'sindico', label: 'Síndico' },
     { value: 'funcionario', label: 'Funcionário' },
-    { value: 'morador', label: 'Proprietário' },
+    { value: 'proprietario', label: 'Proprietário' },
     { value: 'inquilino', label: 'Inquilino' }
 ]
 
@@ -85,6 +86,7 @@ const selectStyles = {
 }
 
 export function UserForm({ user, onSubmit, onCancel }) {
+    const [showForm, setShowForm] = useState(!!user)
     const fileInputRef = useRef(null)
     const [formData, setFormData] = useState({
         name: user?.name || '',
@@ -92,7 +94,7 @@ export function UserForm({ user, onSubmit, onCancel }) {
         cpf: user?.cpf || '',
         phone: user?.phone || '',
         password: '',
-        role: user?.role || 'morador',
+        role: user?.role || '',
         status: user?.status ?? true,
         apartment: user?.apartment || '',
         block: user?.block || '',
@@ -161,6 +163,7 @@ export function UserForm({ user, onSubmit, onCancel }) {
         if (!formData.cpf) newErrors.cpf = 'CPF é obrigatório'
         if (!formData.phone) newErrors.phone = 'Telefone é obrigatório'
         if (!user && !formData.password) newErrors.password = 'Senha é obrigatória'
+        if (!formData.role) newErrors.role = 'Nível de acesso é obrigatório'
         if (formData.role === 'funcionario' && !formData.cargoFuncionario) {
             newErrors.cargoFuncionario = 'Cargo é obrigatório'
         }
@@ -215,431 +218,425 @@ export function UserForm({ user, onSubmit, onCancel }) {
         }
     }
 
+    const handleRoleSelect = (role) => {
+        setFormData(prev => ({ ...prev, role }))
+        setShowForm(true)
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 pb-24">
-            {/* Cabeçalho com Ícone */}
-            <div className="bg-gradient-to-br from-gray-800 via-gray-900 to-black p-16 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-500/20 via-purple-900/30 to-transparent"></div>
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-blue-900/20 via-purple-900/20 to-transparent"></div>
-                <div className="absolute inset-0">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/20 rounded-full filter blur-3xl transform translate-x-1/3 -translate-y-1/2"></div>
-                    <div className="absolute top-1/4 left-1/4 w-48 h-48 bg-blue-500/10 rounded-full filter blur-3xl"></div>
-                    <div className="absolute -bottom-32 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full filter blur-3xl"></div>
-                </div>
-                <div className="max-w-2xl mx-auto relative">
-                    <div className="flex items-center space-x-6">
-                        <div className="bg-white/5 backdrop-blur-xl p-4 rounded-2xl shadow-xl border border-white/5">
-                            <RiUser3Line className="w-16 h-16 text-white/90" />
-                        </div>
-                        <div>
-                            <h2 className="text-3xl font-bold text-white/90">
-                        {user ? 'Editar Usuário' : 'Novo Usuário'}
-                    </h2>
-                            <p className="text-white/70 mt-1">
-                                {user ? 'Atualize as informações do usuário conforme necessário' : 'Preencha as informações para criar um novo usuário'}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <PageHeader
+                icon={RiUser3Line}
+                title={user ? 'Editar Usuário' : 'Novo Usuário'}
+                description={user ? 'Atualize as informações do usuário conforme necessário' : 'Preencha as informações para criar um novo usuário'}
+            />
 
-            {/* Formulário */}
             <div className="max-w-5xl mx-auto px-4 -mt-8 relative z-10 mb-24">
-                <form className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6"
+                >
                     <div className="space-y-8">
                         {/* Seção: Acesso */}
                         <div>
                             <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
                                 <RiShieldUserLine className="w-5 h-5" />
-                                <h3 className="text-lg font-semibold">Acesso</h3>
+                                <h3 className="text-lg font-semibold">Nível de Acesso</h3>
                             </div>
-                            <div>
-                                <div className="mb-6">
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                        Nível de Acesso
-                                        <span className="text-danger-500 ml-1">*</span>
-                                    </label>
-                                    <div className="grid grid-cols-5 gap-2">
-                                        {roleOptions.map(option => (
-                                            <div
-                                                key={option.value}
-                                                onClick={() => setFormData({ ...formData, role: option.value })}
-                                                className={`
-                                                    cursor-pointer rounded-lg p-2 text-center transition-all
-                                                    border-2 hover:border-primary-500 text-sm
-                                                    ${formData.role === option.value
-                                                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                                                        : 'border-gray-200 dark:border-gray-700'
-                                                    }
-                                                `}
-                                            >
-                                                <div className="font-medium text-gray-900 dark:text-white">
-                                                    {option.label}
+                            <div className="grid grid-cols-5 gap-4">
+                                {roleOptions.map(option => (
+                                    <motion.div
+                                        key={option.value}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => handleRoleSelect(option.value)}
+                                        className={`
+                                            cursor-pointer rounded-lg p-4 text-center transition-all
+                                            border-2 hover:border-primary-500
+                                            ${formData.role === option.value
+                                                ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
+                                                : 'border-gray-200 dark:border-gray-700'
+                                            }
+                                        `}
+                                    >
+                                        <div className="font-medium text-gray-900 dark:text-white">
+                                            {option.label}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <AnimatePresence>
+                            {showForm && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                >
+                                    {formData.role === 'funcionario' && (
+                                        <div className="mb-6">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Cargo de Atuação
+                                                <span className="text-danger-500 ml-1">*</span>
+                                            </label>
+                                            <Select
+                                                options={funcionarioOptions}
+                                                value={funcionarioOptions.find(option => option.value === formData.cargoFuncionario)}
+                                                onChange={(option) => setFormData({ ...formData, cargoFuncionario: option.value })}
+                                                styles={selectStyles}
+                                                placeholder="Selecione o cargo"
+                                                isSearchable
+                                                noOptionsMessage={() => "Nenhum cargo encontrado"}
+                                            />
+                                            {errors.cargoFuncionario && (
+                                                <p className="mt-1 text-sm text-danger-500">{errors.cargoFuncionario}</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {formData.role === 'inquilino' && (
+                                        <div className="mb-6">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                Proprietário do Imóvel
+                                                <span className="text-danger-500 ml-1">*</span>
+                                            </label>
+                                            <Select
+                                                options={proprietariosOptions}
+                                                value={proprietariosOptions.find(option => option.value === formData.proprietarioId)}
+                                                onChange={(option) => setFormData({ ...formData, proprietarioId: option?.value || '' })}
+                                                styles={selectStyles}
+                                                placeholder="Selecione o proprietário"
+                                                isSearchable
+                                                noOptionsMessage={() => "Nenhum proprietário encontrado"}
+                                                formatOptionLabel={({ label }) => (
+                                                    <div className="flex flex-col">
+                                                        <span>{label.split('-')[0]}</span>
+                                                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                            {label.split('-')[1]}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            />
+                                            {errors.proprietarioId && (
+                                                <p className="mt-1 text-sm text-danger-500">{errors.proprietarioId}</p>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Seção: Informações Básicas */}
+                                    <div>
+                                        <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
+                                            <RiShieldUserLine className="w-5 h-5" />
+                                            <h3 className="text-lg font-semibold">Informações Básicas</h3>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div className="md:col-span-2">
+                                                <Input
+                                                    label="Nome Completo"
+                                                    required
+                                                    value={formData.name}
+                                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                    error={errors.name}
+                                                />
+                                            </div>
+                                            <Input
+                                                type="date"
+                                                label="Data de Nascimento"
+                                                required
+                                                value={formData.dataNascimento}
+                                                onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
+                                                error={errors.dataNascimento}
+                                            />
+                                            <Input
+                                                label="CPF"
+                                                required
+                                                value={formData.cpf}
+                                                onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
+                                                error={errors.cpf}
+                                                mask="cpf"
+                                                placeholder="000.000.000-00"
+                                            />
+                                            <Input
+                                                label="E-mail"
+                                                type="email"
+                                                required
+                                                value={formData.email}
+                                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                                error={errors.email}
+                                            />
+                                            <Input
+                                                label="Telefone"
+                                                required
+                                                value={formData.phone}
+                                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                                                error={errors.phone}
+                                                mask="phone"
+                                                placeholder="(00) 00000-0000"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Seção: Informações Residenciais (apenas para proprietários e inquilinos) */}
+                                    {(formData.role === 'proprietario' || formData.role === 'inquilino') && (
+                                        <div>
+                                            <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
+                                                <RiShieldUserLine className="w-5 h-5" />
+                                                <h3 className="text-lg font-semibold">Informações Residenciais</h3>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                        Quadra
+                                                    </label>
+                                                    <Select
+                                                        options={quadraOptions}
+                                                        value={quadraOptions.find(option => option.value === formData.quadra)}
+                                                        onChange={(option) => setFormData({ ...formData, quadra: option?.value || '' })}
+                                                        styles={selectStyles}
+                                                        placeholder="Selecione a quadra"
+                                                        isSearchable
+                                                        isClearable
+                                                        noOptionsMessage={() => "Nenhuma quadra encontrada"}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                        Lote
+                                                    </label>
+                                                    <Select
+                                                        options={loteOptions}
+                                                        value={loteOptions.find(option => option.value === formData.lote)}
+                                                        onChange={(option) => setFormData({ ...formData, lote: option?.value || '' })}
+                                                        styles={selectStyles}
+                                                        placeholder="Selecione o lote"
+                                                        isSearchable
+                                                        isClearable
+                                                        noOptionsMessage={() => "Nenhum lote encontrado"}
+                                                    />
+                                                </div>
+                                                <Input
+                                                    label="Número"
+                                                    value={formData.numero}
+                                                    onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
+                                                />
+                                                <Input
+                                                    label="Apartamento"
+                                                    value={formData.apartment}
+                                                    onChange={(e) => setFormData({ ...formData, apartment: e.target.value })}
+                                                />
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                        Bloco
+                                                    </label>
+                                                    <Select
+                                                        options={blocoOptions}
+                                                        value={blocoOptions.find(option => option.value === formData.block)}
+                                                        onChange={(option) => setFormData({ ...formData, block: option?.value || '' })}
+                                                        styles={selectStyles}
+                                                        placeholder="Selecione o bloco"
+                                                        isSearchable
+                                                        isClearable
+                                                        noOptionsMessage={() => "Nenhum bloco encontrado"}
+                                                    />
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                </div>
+                                        </div>
+                                    )}
 
-                                {formData.role === 'funcionario' && (
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Cargo de Atuação
-                                            <span className="text-danger-500 ml-1">*</span>
-                                        </label>
-                                        <Select
-                                            options={funcionarioOptions}
-                                            value={funcionarioOptions.find(option => option.value === formData.cargoFuncionario)}
-                                            onChange={(option) => setFormData({ ...formData, cargoFuncionario: option.value })}
-                                            styles={selectStyles}
-                                            placeholder="Selecione o cargo"
-                                            isSearchable
-                                            noOptionsMessage={() => "Nenhum cargo encontrado"}
-                                        />
-                                        {errors.cargoFuncionario && (
-                                            <p className="mt-1 text-sm text-danger-500">{errors.cargoFuncionario}</p>
-                                        )}
-                                    </div>
-                                )}
-
-                                {formData.role === 'inquilino' && (
-                                    <div className="mb-6">
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Proprietário do Imóvel
-                                            <span className="text-danger-500 ml-1">*</span>
-                                        </label>
-                                        <Select
-                                            options={proprietariosOptions}
-                                            value={proprietariosOptions.find(option => option.value === formData.proprietarioId)}
-                                            onChange={(option) => setFormData({ ...formData, proprietarioId: option?.value || '' })}
-                                            styles={selectStyles}
-                                            placeholder="Selecione o proprietário"
-                                            isSearchable
-                                            noOptionsMessage={() => "Nenhum proprietário encontrado"}
-                                            formatOptionLabel={({ label }) => (
-                                                <div className="flex flex-col">
-                                                    <span>{label.split('-')[0]}</span>
-                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                                                        {label.split('-')[1]}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        />
-                                        {errors.proprietarioId && (
-                                            <p className="mt-1 text-sm text-danger-500">{errors.proprietarioId}</p>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Seção: Informações Básicas */}
-                        <div>
-                            <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
-                                <RiShieldUserLine className="w-5 h-5" />
-                                <h3 className="text-lg font-semibold">Informações Básicas</h3>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div className="md:col-span-2">
-                        <Input
-                                        label="Nome Completo"
-                            required
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            error={errors.name}
-                        />
-                                </div>
-                                <Input
-                                    type="date"
-                                    label="Data de Nascimento"
-                                    required
-                                    value={formData.dataNascimento}
-                                    onChange={(e) => setFormData({ ...formData, dataNascimento: e.target.value })}
-                                    error={errors.dataNascimento}
-                                />
-                        <Input
-                            label="CPF"
-                            required
-                            value={formData.cpf}
-                            onChange={(e) => setFormData({ ...formData, cpf: e.target.value })}
-                            error={errors.cpf}
-                                    mask="cpf"
-                                    placeholder="000.000.000-00"
-                                />
-                                <Input
-                                    label="E-mail"
-                                    type="email"
-                                    required
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    error={errors.email}
-                                />
-                                <Input
-                                    label="Telefone"
-                                    required
-                                    value={formData.phone}
-                                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                    error={errors.phone}
-                                    mask="phone"
-                                    placeholder="(00) 00000-0000"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Seção: Informações Residenciais (apenas para moradores e inquilinos) */}
-                        {(formData.role === 'morador' || formData.role === 'inquilino') && (
-                            <div>
-                                <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
-                                    <RiShieldUserLine className="w-5 h-5" />
-                                    <h3 className="text-lg font-semibold">Informações Residenciais</h3>
-                                </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Quadra
-                                        </label>
-                                        <Select
-                                            options={quadraOptions}
-                                            value={quadraOptions.find(option => option.value === formData.quadra)}
-                                            onChange={(option) => setFormData({ ...formData, quadra: option?.value || '' })}
-                                            styles={selectStyles}
-                                            placeholder="Selecione a quadra"
-                                            isSearchable
-                                            isClearable
-                                            noOptionsMessage={() => "Nenhuma quadra encontrada"}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Lote
-                                        </label>
-                                        <Select
-                                            options={loteOptions}
-                                            value={loteOptions.find(option => option.value === formData.lote)}
-                                            onChange={(option) => setFormData({ ...formData, lote: option?.value || '' })}
-                                            styles={selectStyles}
-                                            placeholder="Selecione o lote"
-                                            isSearchable
-                                            isClearable
-                                            noOptionsMessage={() => "Nenhum lote encontrado"}
-                                        />
-                                    </div>
-                                    <Input
-                                        label="Número"
-                                        value={formData.numero}
-                                        onChange={(e) => setFormData({ ...formData, numero: e.target.value })}
-                                    />
-                                    <Input
-                                        label="Apartamento"
-                                        value={formData.apartment}
-                                        onChange={(e) => setFormData({ ...formData, apartment: e.target.value })}
-                                    />
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Bloco
-                                        </label>
-                                        <Select
-                                            options={blocoOptions}
-                                            value={blocoOptions.find(option => option.value === formData.block)}
-                                            onChange={(option) => setFormData({ ...formData, block: option?.value || '' })}
-                                            styles={selectStyles}
-                                            placeholder="Selecione o bloco"
-                                            isSearchable
-                                            isClearable
-                                            noOptionsMessage={() => "Nenhum bloco encontrado"}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Seção: Veículos */}
-                        {(formData.role === 'morador' || formData.role === 'inquilino') && (
-                            <div>
-                                <div className="flex items-center justify-between text-primary-600 dark:text-primary-400 mb-4">
-                                    <div className="flex items-center space-x-2">
-                                        <RiShieldUserLine className="w-5 h-5" />
-                                        <h3 className="text-lg font-semibold">Veículos</h3>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData(prev => ({
-                                            ...prev,
-                                            veiculos: [...prev.veiculos, { tipo: 'carro', marca: '', modelo: '', placa: '', cor: '' }]
-                                        }))}
-                                        className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 
-                                                 dark:hover:text-primary-300 transition-colors duration-200"
-                                    >
-                                        + Adicionar Veículo
-                                    </button>
-                                </div>
-                                <div className="space-y-4">
-                                    {formData.veiculos.map((veiculo, index) => (
-                                        <div key={index} className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <div className="w-full">
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <Input
-                                                            label="Placa"
-                                                            value={veiculo.placa}
-                                                            onChange={(e) => {
-                                                                const newVeiculos = [...formData.veiculos]
-                                                                newVeiculos[index].placa = e.target.value
-                                                                setFormData({ ...formData, veiculos: newVeiculos })
-                                                                
-                                                                const placa = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
-                                                                if (placa.length === 7) {
-                                                                    consultarPlaca(placa, index)
-                                                                }
-                                                            }}
-                                                            placeholder="ABC-1234 ou ABC1D23"
-                                                            mask="placa"
-                                                        />
-                                                        <Input
-                                                            label="Cor"
-                                                            value={veiculo.cor}
-                                                            onChange={(e) => {
-                                                                const newVeiculos = [...formData.veiculos]
-                                                                newVeiculos[index].cor = e.target.value
-                                                                setFormData({ ...formData, veiculos: newVeiculos })
-                                                                
-                                                                // Limpa o erro quando o usuário começa a digitar
-                                                                if (errors.veiculos?.[index]?.cor) {
-                                                                    const newErrors = { ...errors }
-                                                                    if (newErrors.veiculos?.[index]) {
-                                                                        delete newErrors.veiculos[index].cor
-                                                                        if (Object.keys(newErrors.veiculos[index]).length === 0) {
-                                                                            delete newErrors.veiculos[index]
-                                                                        }
-                                                                        if (Object.keys(newErrors.veiculos).length === 0) {
-                                                                            delete newErrors.veiculos
-                                                                        }
-                                                                    }
-                                                                    setErrors(newErrors)
-                                                                }
-                                                            }}
-                                                            placeholder="Ex: Prata"
-                                                            required={!!veiculo.placa}
-                                                            error={errors.veiculos?.[index]?.cor}
-                                                        />
-                                                    </div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                                                        <Input
-                                                            label="Tipo"
-                                                            value={veiculo.tipo}
-                                                            onChange={(e) => {
-                                                                const newVeiculos = [...formData.veiculos]
-                                                                newVeiculos[index].tipo = e.target.value
-                                                                setFormData({ ...formData, veiculos: newVeiculos })
-                                                            }}
-                                                            disabled
-                                                        />
-                                                        <Input
-                                                            label="Marca"
-                                                            value={veiculo.marca}
-                                                            onChange={(e) => {
-                                                                const newVeiculos = [...formData.veiculos]
-                                                                newVeiculos[index].marca = e.target.value
-                                                                setFormData({ ...formData, veiculos: newVeiculos })
-                                                            }}
-                                                            disabled
-                                                        />
-                                                        <Input
-                                                            label="Modelo"
-                                                            value={veiculo.modelo}
-                                                            onChange={(e) => {
-                                                                const newVeiculos = [...formData.veiculos]
-                                                                newVeiculos[index].modelo = e.target.value
-                                                                setFormData({ ...formData, veiculos: newVeiculos })
-                                                            }}
-                                                            disabled
-                                                        />
-                                                    </div>
+                                    {/* Seção: Veículos */}
+                                    {(formData.role === 'proprietario' || formData.role === 'inquilino') && (
+                                        <div>
+                                            <div className="flex items-center justify-between text-primary-600 dark:text-primary-400 mb-4">
+                                                <div className="flex items-center space-x-2">
+                                                    <RiShieldUserLine className="w-5 h-5" />
+                                                    <h3 className="text-lg font-semibold">Veículos</h3>
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    onClick={() => {
-                                                        const newVeiculos = formData.veiculos.filter((_, i) => i !== index)
-                                                        setFormData({ ...formData, veiculos: newVeiculos })
-                                                    }}
-                                                    className="ml-4 text-danger-500 hover:text-danger-700 transition-colors duration-200"
+                                                    onClick={() => setFormData(prev => ({
+                                                        ...prev,
+                                                        veiculos: [...prev.veiculos, { tipo: 'carro', marca: '', modelo: '', placa: '', cor: '' }]
+                                                    }))}
+                                                    className="text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 
+                                                             dark:hover:text-primary-300 transition-colors duration-200"
                                                 >
-                                                    <RiCloseLine className="w-5 h-5" />
+                                                    + Adicionar Veículo
                                                 </button>
                                             </div>
+                                            <div className="space-y-4">
+                                                {formData.veiculos.map((veiculo, index) => (
+                                                    <div key={index} className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
+                                                        <div className="flex justify-between items-start mb-4">
+                                                            <div className="w-full">
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <Input
+                                                                        label="Placa"
+                                                                        value={veiculo.placa}
+                                                                        onChange={(e) => {
+                                                                            const newVeiculos = [...formData.veiculos]
+                                                                            newVeiculos[index].placa = e.target.value
+                                                                            setFormData({ ...formData, veiculos: newVeiculos })
+                                                                            
+                                                                            const placa = e.target.value.replace(/[^a-zA-Z0-9]/g, '')
+                                                                            if (placa.length === 7) {
+                                                                                consultarPlaca(placa, index)
+                                                                            }
+                                                                        }}
+                                                                        placeholder="ABC-1234 ou ABC1D23"
+                                                                        mask="placa"
+                                                                    />
+                                                                    <Input
+                                                                        label="Cor"
+                                                                        value={veiculo.cor}
+                                                                        onChange={(e) => {
+                                                                            const newVeiculos = [...formData.veiculos]
+                                                                            newVeiculos[index].cor = e.target.value
+                                                                            setFormData({ ...formData, veiculos: newVeiculos })
+                                                                            
+                                                                            // Limpa o erro quando o usuário começa a digitar
+                                                                            if (errors.veiculos?.[index]?.cor) {
+                                                                                const newErrors = { ...errors }
+                                                                                if (newErrors.veiculos?.[index]) {
+                                                                                    delete newErrors.veiculos[index].cor
+                                                                                    if (Object.keys(newErrors.veiculos[index]).length === 0) {
+                                                                                        delete newErrors.veiculos[index]
+                                                                                    }
+                                                                                    if (Object.keys(newErrors.veiculos).length === 0) {
+                                                                                        delete newErrors.veiculos
+                                                                                    }
+                                                                                }
+                                                                                setErrors(newErrors)
+                                                                            }
+                                                                        }}
+                                                                        placeholder="Ex: Prata"
+                                                                        required={!!veiculo.placa}
+                                                                        error={errors.veiculos?.[index]?.cor}
+                                                                    />
+                                                                </div>
+                                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                                                                    <Input
+                                                                        label="Tipo"
+                                                                        value={veiculo.tipo}
+                                                                        onChange={(e) => {
+                                                                            const newVeiculos = [...formData.veiculos]
+                                                                            newVeiculos[index].tipo = e.target.value
+                                                                            setFormData({ ...formData, veiculos: newVeiculos })
+                                                                        }}
+                                                                        disabled
+                                                                    />
+                                                                    <Input
+                                                                        label="Marca"
+                                                                        value={veiculo.marca}
+                                                                        onChange={(e) => {
+                                                                            const newVeiculos = [...formData.veiculos]
+                                                                            newVeiculos[index].marca = e.target.value
+                                                                            setFormData({ ...formData, veiculos: newVeiculos })
+                                                                        }}
+                                                                        disabled
+                                                                    />
+                                                                    <Input
+                                                                        label="Modelo"
+                                                                        value={veiculo.modelo}
+                                                                        onChange={(e) => {
+                                                                            const newVeiculos = [...formData.veiculos]
+                                                                            newVeiculos[index].modelo = e.target.value
+                                                                            setFormData({ ...formData, veiculos: newVeiculos })
+                                                                        }}
+                                                                        disabled
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const newVeiculos = formData.veiculos.filter((_, i) => i !== index)
+                                                                    setFormData({ ...formData, veiculos: newVeiculos })
+                                                                }}
+                                                                className="ml-4 text-danger-500 hover:text-danger-700 transition-colors duration-200"
+                                                            >
+                                                                <RiCloseLine className="w-5 h-5" />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                    )}
 
-                        {/* Seção: Senha de Acesso */}
-                        {!user && (
-                            <div>
-                                <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
-                                    <RiShieldUserLine className="w-5 h-5" />
-                                    <h3 className="text-lg font-semibold">Senha de Acesso</h3>
-                                </div>
-                                <div className="max-w-md">
-                            <Input
-                                type="password"
-                                label="Senha"
-                                required
-                                value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                error={errors.password}
-                            />
-                                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                        A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas e números
-                                    </p>
-                                </div>
-                            </div>
-                        )}
+                                    {/* Seção: Senha de Acesso */}
+                                    {!user && (
+                                        <div>
+                                            <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
+                                                <RiShieldUserLine className="w-5 h-5" />
+                                                <h3 className="text-lg font-semibold">Senha de Acesso</h3>
+                                            </div>
+                                            <div className="max-w-md">
+                                                <Input
+                                                    type="password"
+                                                    label="Senha"
+                                                    required
+                                                    value={formData.password}
+                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                    error={errors.password}
+                                                />
+                                                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                                    A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas e números
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
 
-                        {/* Seção: Configurações */}
-                        <div>
-                            <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
-                                <RiShieldUserLine className="w-5 h-5" />
-                                <h3 className="text-lg font-semibold">Configurações</h3>
-                        </div>
-                            <div className="space-y-4">
-                        <Checkbox
-                            label="Usuário Ativo"
-                            checked={formData.status}
-                            onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
-                        />
-                                <Checkbox
-                                    label="Receber notificações"
-                                    description="O usuário receberá notificações sobre atualizações e eventos importantes"
-                                    checked={formData.notifications}
-                                    onChange={(e) => setFormData({ ...formData, notifications: e.target.checked })}
-                                />
-                            </div>
-                        </div>
+                                    {/* Seção: Configurações */}
+                                    <div>
+                                        <div className="flex items-center space-x-2 text-primary-600 dark:text-primary-400 mb-4">
+                                            <RiShieldUserLine className="w-5 h-5" />
+                                            <h3 className="text-lg font-semibold">Configurações</h3>
+                                        </div>
+                                        <div className="space-y-4">
+                                            <Checkbox
+                                                label="Usuário Ativo"
+                                                checked={formData.status}
+                                                onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
+                                            />
+                                            <Checkbox
+                                                label="Receber notificações"
+                                                description="O usuário receberá notificações sobre atualizações e eventos importantes"
+                                                checked={formData.notifications}
+                                                onChange={(e) => setFormData({ ...formData, notifications: e.target.checked })}
+                                            />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
-                </form>
+                </motion.div>
             </div>
 
             {/* Footer Fixo */}
             <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-20">
                 <div className="max-w-2xl mx-auto px-4 py-4 flex justify-center space-x-4">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
+                                text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700
+                                transition-colors duration-200"
+                    >
+                        {showForm && !user ? 'Voltar' : 'Cancelar'}
+                    </button>
+                    {showForm && (
                         <button
                             type="button"
-                            onClick={onCancel}
-                        className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
-                                 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700
-                                 transition-colors duration-200"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                        type="button"
                             onClick={handleSubmit}
-                        className="px-6 py-2.5 bg-primary-500 hover:bg-primary-700 text-white rounded-lg
-                                 transition-colors duration-200 font-medium"
+                            className="px-6 py-2.5 bg-primary-500 hover:bg-primary-700 text-white rounded-lg
+                                    transition-colors duration-200 font-medium"
                         >
                             {user ? 'Salvar' : 'Cadastrar'}
                         </button>
+                    )}
                 </div>
             </div>
         </div>

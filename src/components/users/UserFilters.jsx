@@ -6,7 +6,7 @@ const roleOptions = [
 	{ value: 'admin', label: 'Administrador' },
 	{ value: 'sindico', label: 'Síndico' },
 	{ value: 'funcionario', label: 'Funcionário' },
-	{ value: 'morador', label: 'Proprietário' }
+	{ value: 'proprietario', label: 'Proprietário' }
 ]
 
 export function UserFilters({ onFilterChange }) {
