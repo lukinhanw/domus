@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { Suspense, lazy, createContext, useContext, useState } from 'react'
+import { Suspense, lazy, createContext, useContext, useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Sidebar from './components/layout/Sidebar'
 import { MainHeader } from './components/layout/MainHeader'
@@ -24,8 +24,25 @@ function PrivateRoute({ children }) {
 export default function App() {
 	const { user } = useAuth()
 	const [isExpanded, setIsExpanded] = useState(false)
+	const [toast, setToast] = useState(null)
+	const [toastKey, setToastKey] = useState(0)
 	const location = useLocation()
 	const navigate = useNavigate()
+
+	const showToast = (toastData) => {
+		setToastKey(prev => prev + 1)
+		setToast(toastData)
+	}
+
+	// Limpa o toast após um tempo
+	useEffect(() => {
+		if (toast) {
+			const timer = setTimeout(() => {
+				setToast(null)
+			}, 3000)
+			return () => clearTimeout(timer)
+		}
+	}, [toastKey])
 
 	// Rotas onde a Sidebar não deve aparecer
 	const noSidebarRoutes = ['/users/new', '/users/:id']
@@ -51,7 +68,7 @@ export default function App() {
 		<SidebarContext.Provider value={{ isExpanded, setIsExpanded }}>
 			<div className="min-h-screen bg-gradient-to-bl from-gray-100 to-gray-200 dark:bg-gray-900">
 				{shouldShowSidebar && <Sidebar />}
-				{shouldShowSidebar && <MainHeader actions={getHeaderActions()} />}
+				{shouldShowSidebar && <MainHeader actions={getHeaderActions()} toast={toast} />}
 				<main className={shouldShowSidebar ? `pt-20 ${isExpanded ? 'ml-64' : 'ml-20'}` : ''}>
 					<Suspense fallback={
 						<div className="flex items-center justify-center min-h-screen">
@@ -67,17 +84,17 @@ export default function App() {
 							} />
 							<Route path="/users" element={
 								<PrivateRoute>
-									<Users />
+									<Users setToast={showToast} />
 								</PrivateRoute>
 							} />
 							<Route path="/users/new" element={
 								<PrivateRoute>
-									<UserForm />
+									<UserForm setToast={showToast} />
 								</PrivateRoute>
 							} />
 							<Route path="/users/:id" element={
 								<PrivateRoute>
-									<UserForm />
+									<UserForm setToast={showToast} />
 								</PrivateRoute>
 							} />
 							<Route path="/" element={<Navigate to="/dashboard" />} />

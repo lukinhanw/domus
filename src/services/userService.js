@@ -21,7 +21,9 @@ const MOCK_USERS = [
 		cpf: '456.789.123-00',
 		role: 'funcionario',
 		status: false,
-		createdAt: '2024-03-13T09:15:00'
+		createdAt: '2024-03-13T09:15:00',
+		phone: '(19) 99923-1231',
+		email: 'pedro@gmail.com',
 	}
 ]
 

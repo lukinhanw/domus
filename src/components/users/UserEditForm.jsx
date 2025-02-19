@@ -3,7 +3,6 @@ import { RiUser3Line, RiShieldUserLine, RiUpload2Line, RiCloseLine } from 'react
 import Select from 'react-select'
 import { Input } from '../ui/Input'
 import { Checkbox } from '../ui/Checkbox'
-import { showToast } from '../../utils/toast'
 import { PageHeader } from '../ui/PageHeader'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -212,9 +211,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
                 tipo: mockResponse.tipo
             }
             setFormData({ ...formData, veiculos: newVeiculos })
-            showToast.success('Veículo encontrado', 'Dados preenchidos automaticamente.')
         } catch (error) {
-            showToast.error('Erro na consulta', 'Não foi possível consultar a placa. Verifique se a placa está correta.')
+            console.error('Erro na consulta', error)
         }
     }
 
@@ -620,7 +618,7 @@ export function UserForm({ user, onSubmit, onCancel }) {
                 <div className="max-w-2xl mx-auto px-4 py-4 flex justify-center space-x-4">
                     <button
                         type="button"
-                        onClick={onCancel}
+                        onClick={() => onCancel()}
                         className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg 
                                 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700
                                 transition-colors duration-200"

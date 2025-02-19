@@ -2,36 +2,68 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { UserFilters } from '../components/users/UserFilters'
 import { UserList } from '../components/users/UserList'
-import { getUsers } from '../services/userService'
-import { showToast } from '../utils/toast'
+import { getUsers, deleteUser } from '../services/userService'
 import { RiLoader4Line } from 'react-icons/ri'
 
-export default function Users() {
+export default function Users({ setToast }) {
 	const [users, setUsers] = useState([])
 	const [loading, setLoading] = useState(true)
 	const navigate = useNavigate()
 
-	const loadUsers = async (filters) => {
+	// Carregamento inicial silencioso
+	const initialLoad = async () => {
 		try {
 			setLoading(true)
-			const data = await getUsers(filters)
+			const data = await getUsers()
 			setUsers(data)
 		} catch (error) {
-			showToast.error(
-				'Erro ao carregar usuários',
-				'Não foi possível carregar a lista de usuários.'
-			)
+			setToast({
+				type: 'error',
+				message: 'Não foi possível carregar a lista de usuários'
+			})
 		} finally {
 			setLoading(false)
 		}
 	}
 
+	// Recarregamento com feedback
+	const reloadUsers = async (filters = {}) => {
+		try {
+			setLoading(true)
+			const data = await getUsers(filters)
+			setUsers(data)
+		} catch (error) {
+			setToast({
+				type: 'error',
+				message: 'Não foi possível carregar a lista de usuários'
+			})
+		} finally {
+			setLoading(false)
+		}
+	}
+
+	const handleDelete = async (user) => {
+		try {
+			await deleteUser(user.id)
+			setToast({
+				type: 'success',
+				message: 'Usuário excluído com sucesso'
+			})
+			await reloadUsers()
+		} catch (error) {
+			setToast({
+				type: 'error',
+				message: 'Erro ao excluir usuário'
+			})
+		}
+	}
+
 	useEffect(() => {
-		loadUsers()
+		initialLoad()
 	}, [])
 
 	const handleFilterChange = (filters) => {
-		loadUsers(filters)
+		reloadUsers(filters)
 	}
 
 	return (
@@ -69,14 +101,7 @@ export default function Users() {
 					<UserList
 						users={users}
 						onEdit={(user) => navigate(`/users/${user.id}`)}
-						onDelete={(user) => {
-							// Implementar lógica de exclusão
-							showToast.success(
-								'Usuário excluído',
-								'O usuário foi excluído com sucesso.'
-							)
-							loadUsers()
-						}}
+						onDelete={handleDelete}
 					/>
 				)}
 			</div>

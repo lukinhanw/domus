@@ -1,6 +1,7 @@
-import { RiNotification3Line, RiLogoutBoxLine } from 'react-icons/ri'
+import { RiNotification3Line, RiLogoutBoxLine, RiCheckLine, RiErrorWarningLine, RiInformationLine } from 'react-icons/ri'
 import { useAuth } from '../../contexts/AuthContext'
 import { Transition } from '@headlessui/react'
+import { useState, useEffect } from 'react'
 
 const roleLabels = {
     admin: 'Administrador',
@@ -10,12 +11,55 @@ const roleLabels = {
     inquilino: 'Inquilino'
 }
 
-export function MainHeader({ actions }) {
+const toastIcons = {
+    success: <RiCheckLine className="w-5 h-5" />,
+    error: <RiErrorWarningLine className="w-5 h-5" />,
+    info: <RiInformationLine className="w-5 h-5" />
+}
+
+const toastStyles = {
+    success: 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30',
+    error: 'bg-red-500/20 text-red-500 border-red-500/30',
+    info: 'bg-blue-500/20 text-blue-500 border-blue-500/30'
+}
+
+export function MainHeader({ actions, toast }) {
     const { user, logout } = useAuth()
+    const [showToast, setShowToast] = useState(false)
+
+    const toastWidth = toast?.message?.length > 60 ? 'min-w-[450px]' : toast?.message?.length > 40 ? 'min-w-[300px]' : 'min-w-[250px]'
+
+    useEffect(() => {
+        if (toast) {
+            setShowToast(true)
+            const timer = setTimeout(() => setShowToast(false), 5000)
+            return () => clearTimeout(timer)
+        }
+    }, [toast])
 
     return (
         <div className="fixed top-6 right-6 z-50">
             <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border border-gray-800 rounded-2xl shadow-xl px-6 py-3 flex items-center transition-all duration-300">
+
+                {/* Toast Notification */}
+                <Transition
+                    show={showToast && !!toast}
+                    enter="transition-all duration-500 ease-out"
+                    enterFrom="max-w-0 opacity-0"
+                    enterTo={`max-w-[300px] opacity-100`}
+                    leave="transition-all duration-500 ease-in-out"
+                    leaveFrom={`max-w-[300px] opacity-100`}
+                    leaveTo="max-w-0 opacity-0"
+                >
+                    <div className="overflow-hidden">
+                        <div className={`flex items-center space-x-2 mr-6 px-3 py-1.5 rounded-lg border ${toastWidth} ${toastStyles[toast?.type]}`}>
+                            {toastIcons[toast?.type]}
+                            <span className="whitespace-nowrap text-sm font-medium">
+                                {toast?.message}
+                            </span>
+                        </div>
+                    </div>
+                </Transition>
 
                 {/* Botões de Ação */}
                 <Transition
