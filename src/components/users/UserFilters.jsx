@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Input } from '../ui/Input'
+import Select from 'react-select'
 
 const roleOptions = [
 	{ value: '', label: 'Todos os cargos' },
@@ -8,6 +9,39 @@ const roleOptions = [
 	{ value: 'funcionario', label: 'Funcionário' },
 	{ value: 'proprietario', label: 'Proprietário' }
 ]
+
+const statusOptions = [
+	{ value: '', label: 'Todos os status' },
+	{ value: 'true', label: 'Ativo' },
+	{ value: 'false', label: 'Inativo' }
+]
+
+const selectStyles = {
+	control: (base, state) => ({
+		...base,
+		padding: '2px',
+		borderRadius: '0.75rem',
+		borderColor: state.isFocused ? '#6366F1' : '#E5E7EB',
+		boxShadow: state.isFocused ? '0 0 0 1px #6366F1' : 'none',
+		'&:hover': {
+			borderColor: '#6366F1'
+		}
+	}),
+	option: (base, state) => ({
+		...base,
+		backgroundColor: state.isSelected ? '#6366F1' : state.isFocused ? '#EEF2FF' : 'transparent',
+		color: state.isSelected ? 'white' : '#111827',
+		'&:active': {
+			backgroundColor: '#6366F1'
+		}
+	}),
+	menu: (base) => ({
+		...base,
+		borderRadius: '0.75rem',
+		overflow: 'hidden',
+		boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+	})
+}
 
 export function UserFilters({ onFilterChange }) {
 	const [filters, setFilters] = useState({
@@ -23,45 +57,53 @@ export function UserFilters({ onFilterChange }) {
 	}
 
 	return (
-		<div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm mb-6 space-y-4">
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<Input
-					label="Buscar"
-					placeholder="Nome ou CPF"
-					value={filters.search}
-					onChange={(e) => handleChange('search', e.target.value)}
-				/>
-
+		<div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mb-8 space-y-6">
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 				<div>
-					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-						Cargo
+					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Buscar usuário
 					</label>
-					<select
-						className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-						value={filters.role}
-						onChange={(e) => handleChange('role', e.target.value)}
-					>
-						{roleOptions.map(option => (
-							<option key={option.value} value={option.value}>
-								{option.label}
-							</option>
-						))}
-					</select>
+					<Input
+						placeholder="Nome ou CPF"
+						value={filters.search}
+						onChange={(e) => handleChange('search', e.target.value)}
+						className="w-full rounded-xl"
+						icon="search"
+					/>
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Cargo
+					</label>
+					<Select
+						options={roleOptions}
+						value={roleOptions.find(option => option.value === filters.role)}
+						onChange={(option) => handleChange('role', option?.value || '')}
+						styles={selectStyles}
+						placeholder="Selecione o cargo"
+						isSearchable
+						isClearable
+						classNamePrefix="select"
+						noOptionsMessage={() => "Nenhum cargo encontrado"}
+					/>
+				</div>
+
+				<div>
+					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 						Status
 					</label>
-					<select
-						className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-						value={filters.status === undefined ? '' : filters.status}
-						onChange={(e) => handleChange('status', e.target.value === '' ? undefined : e.target.value === 'true')}
-					>
-						<option value="">Todos</option>
-						<option value="true">Ativo</option>
-						<option value="false">Inativo</option>
-					</select>
+					<Select
+						options={statusOptions}
+						value={statusOptions.find(option => option.value === String(filters.status))}
+						onChange={(option) => handleChange('status', option?.value === '' ? undefined : option?.value === 'true')}
+						styles={selectStyles}
+						placeholder="Selecione o status"
+						isSearchable
+						isClearable
+						classNamePrefix="select"
+						noOptionsMessage={() => "Nenhum status encontrado"}
+					/>
 				</div>
 			</div>
 		</div>

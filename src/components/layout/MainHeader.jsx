@@ -1,5 +1,6 @@
 import { RiNotification3Line, RiLogoutBoxLine } from 'react-icons/ri'
 import { useAuth } from '../../contexts/AuthContext'
+import { Transition } from '@headlessui/react'
 
 const roleLabels = {
     admin: 'Administrador',
@@ -14,37 +15,41 @@ export function MainHeader({ actions }) {
 
     return (
         <div className="fixed top-6 right-6 z-50">
-            <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border border-gray-800 rounded-2xl shadow-xl px-6 py-3 flex items-center space-x-6">
-                
+            <div className="bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 border border-gray-800 rounded-2xl shadow-xl px-6 py-3 flex items-center transition-all duration-300">
+
                 {/* Botões de Ação */}
-                {actions?.length > 0 && (
-                    <>
-                        <div className="flex items-center space-x-2">
+                <Transition
+                    show={actions?.length > 0}
+                    enter="transition-all duration-500 ease-out"
+                    enterFrom="max-w-0 opacity-0"
+                    enterTo="max-w-[170px] opacity-100"
+                    leave="transition-all duration-500 ease-in-out"
+                    leaveFrom="max-w-[170px] opacity-100"
+                    leaveTo="max-w-0 opacity-0"
+                >
+                    <div className="overflow-hidden">
+                        <div className="flex items-center space-x-2 mr-6 min-w-[130px]">
                             {actions.map((action, index) => (
                                 <button
                                     key={index}
                                     onClick={action.onClick}
-                                    className="btn-primary text-sm"
+                                    className="btn-primary text-sm whitespace-nowrap"
                                 >
                                     {action.label}
                                 </button>
                             ))}
                         </div>
-                        <div className="w-px h-8 bg-gray-700" />
-                    </>
-                )}
+                    </div>
+                </Transition>
                 
                 {/* Notificações */}
-                <button className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors">
+                <button className="relative p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors mr-6">
                     <RiNotification3Line className="w-6 h-6" />
                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary-500 text-white text-xs flex items-center justify-center rounded-full">3</span>
                 </button>
 
-                {/* Separador */}
-                <div className="w-px h-8 bg-gray-700" />
-
                 {/* Usuário */}
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-3 mr-6">
                     <div className="w-10 h-10 rounded-full bg-gray-700 flex items-center justify-center">
                         <span className="text-lg font-medium text-white">
                             {user?.name?.charAt(0).toUpperCase()}
@@ -58,10 +63,10 @@ export function MainHeader({ actions }) {
                 </div>
 
                 {/* Separador */}
-                <div className="w-px h-8 bg-gray-700" />
+                <div className="w-px h-8 bg-gray-700 mr-6" />
 
                 {/* Botão de Sair */}
-                <button 
+                <button
                     onClick={logout}
                     className="p-2 text-gray-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                 >
