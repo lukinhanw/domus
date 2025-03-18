@@ -5,6 +5,7 @@ import { Input } from '../ui/Input'
 import { Checkbox } from '../ui/Checkbox'
 import { PageHeader } from '../ui/PageHeader'
 import { motion, AnimatePresence } from 'framer-motion'
+import { selectStyles } from '../../styles/selectStyles'
 
 const roleOptions = [
     { value: 'admin', label: 'Administrador' },
@@ -54,35 +55,6 @@ const proprietariosOptions = [
     { value: '6', label: 'Beatriz Lima - Quadra 2, Lote 2' },
     { value: '7', label: 'Roberto Costa - Quadra 3, Lote 5' }
 ]
-
-const selectStyles = {
-    control: (base, state) => ({
-        ...base,
-        padding: '2px',
-        borderRadius: '0.5rem',
-        borderColor: state.isFocused ? '#6366F1' : '#D1D5DB',
-        boxShadow: state.isFocused ? '0 0 0 1px #6366F1' : 'none',
-        '&:hover': {
-            borderColor: '#6366F1'
-        }
-    }),
-    option: (base, state) => ({
-        ...base,
-        backgroundColor: state.isSelected ? '#6366F1' : state.isFocused ? '#E0E7FF' : 'transparent',
-        color: state.isSelected ? 'white' : '#111827',
-        '&:active': {
-            backgroundColor: '#6366F1'
-        }
-    }),
-    input: (base) => ({
-        ...base,
-        color: '#111827'
-    }),
-    singleValue: (base) => ({
-        ...base,
-        color: '#111827'
-    })
-}
 
 export function UserForm({ user, onSubmit, onCancel }) {
     const [showForm, setShowForm] = useState(!!user)

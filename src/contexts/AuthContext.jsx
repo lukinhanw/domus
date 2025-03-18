@@ -1,21 +1,44 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loginUser } from '../services/authService'
+import { storageService } from '../services/storageService'
 import { showToast } from '../utils/toast'
 
 const AuthContext = createContext({})
 
 export function AuthProvider({ children }) {
-	const [user, setUser] = useState(null)
+	const [user, setUser] = useState(() => storageService.getUser())
 	const [loading, setLoading] = useState(false)
 	const navigate = useNavigate()
+
+	useEffect(() => {
+		// Verifica se existe um usuário salvo e se o "Lembrar-me" está ativo
+		const savedUser = storageService.getUser()
+		const rememberMe = storageService.getRememberMe()
+		
+		if (savedUser && rememberMe) {
+			setUser(savedUser)
+		}
+	}, [])
 
 	const login = useCallback(async (credentials) => {
 		try {
 			setLoading(true)
 			const data = await loginUser(credentials)
 			setUser(data.user)
-			localStorage.setItem('token', data.token)
+			storageService.setToken(data.token)
+			storageService.setUser(data.user)
+			storageService.setRememberMe(credentials.rememberMe)
+			
+			if (credentials.rememberMe) {
+				storageService.setCredentials({
+					email: credentials.email,
+					password: credentials.password
+				})
+			} else {
+				storageService.setCredentials(null)
+			}
+
 			navigate('/dashboard')
 			showToast.success(
 				'Bem vindo de volta!',
@@ -34,7 +57,7 @@ export function AuthProvider({ children }) {
 
 	const logout = useCallback(() => {
 		setUser(null)
-		localStorage.removeItem('token')
+		storageService.clear()
 		navigate('/login')
 		showToast.info(
 			'Sair',

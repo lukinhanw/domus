@@ -3,29 +3,28 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Input } from '../ui/Input'
 import { Checkbox } from '../ui/Checkbox'
 import { useAuth } from '../../contexts/AuthContext'
+import { storageService } from '../../services/storageService'
 import { showToast } from '../../utils/toast'
 import { RiMailLine, RiLockLine, RiEyeLine, RiEyeOffLine } from 'react-icons/ri'
 
 export function LoginForm() {
 	const [step, setStep] = useState(1)
 	const [credentials, setCredentials] = useState(() => {
-		const saved = localStorage.getItem('savedCredentials')
-		return saved ? JSON.parse(saved) : { email: '', password: '' }
+		const saved = storageService.getCredentials()
+		return saved || { email: '', password: '' }
 	})
-	const [rememberMe, setRememberMe] = useState(() =>
-		localStorage.getItem('rememberMe') === 'true'
-	)
+	const [rememberMe, setRememberMe] = useState(() => storageService.getRememberMe())
 	const [errors, setErrors] = useState({})
 	const { login, loading } = useAuth()
 	const [showPassword, setShowPassword] = useState(false)
 
 	useEffect(() => {
 		if (rememberMe) {
-			localStorage.setItem('savedCredentials', JSON.stringify(credentials))
-			localStorage.setItem('rememberMe', 'true')
+			storageService.setCredentials(credentials)
+			storageService.setRememberMe(true)
 		} else {
-			localStorage.removeItem('savedCredentials')
-			localStorage.removeItem('rememberMe')
+			storageService.setCredentials(null)
+			storageService.setRememberMe(false)
 		}
 	}, [rememberMe, credentials])
 
@@ -67,7 +66,7 @@ export function LoginForm() {
 		if (!validatePassword()) return
 
 		try {
-			await login(credentials)
+			await login({ ...credentials, rememberMe })
 		} catch (error) {
 			showToast.error(
 				'Falha no login',
