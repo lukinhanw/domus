@@ -1,4 +1,4 @@
-import { RiDashboardLine, RiUser3Line, RiSettings4Line, RiLogoutBoxLine, RiTeamLine, RiMenuLine } from 'react-icons/ri'
+import { RiDashboardLine, RiUser3Line, RiSettings4Line, RiLogoutBoxLine, RiTeamLine, RiMenuLine, RiHome2Line } from 'react-icons/ri'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { useSidebar } from '../../App'
@@ -8,6 +8,7 @@ import logoSquare from '../../assets/images/logo-square-dark.png'
 const menuItems = [
 	{ icon: RiDashboardLine, text: 'Dashboard', path: '/dashboard' },
 	{ icon: RiTeamLine, text: 'Usuários', path: '/users' },
+	{ icon: RiHome2Line, text: 'Imóveis', path: '/imoveis' },
 	{ icon: RiUser3Line, text: 'Perfil', path: '/profile' },
 	{ icon: RiSettings4Line, text: 'Configurações', path: '/settings' }
 ]

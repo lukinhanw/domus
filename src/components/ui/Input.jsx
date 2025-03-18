@@ -44,6 +44,8 @@ export const Input = forwardRef(({
 	mask,
 	onChange,
 	value,
+	multiline,
+	rows = 3,
 	...props
 }, ref) => {
 	const handleChange = (e) => {
@@ -52,6 +54,17 @@ export const Input = forwardRef(({
 		}
 		onChange?.(e)
 	}
+
+	const inputClasses = clsx(
+		"w-full px-4 py-2 rounded-lg transition-colors duration-200",
+		"border focus:outline-none focus:ring-2 focus:ring-offset-2",
+		"disabled:opacity-50 disabled:cursor-not-allowed",
+		error
+			? "border-danger-500 focus:border-danger-500 focus:ring-danger-500"
+			: "border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-primary-500",
+		"bg-white dark:bg-gray-800 text-gray-900 dark:text-white",
+		className
+	)
 
 	return (
 		<div className="w-full">
@@ -62,22 +75,24 @@ export const Input = forwardRef(({
 				</label>
 			)}
 			<div>
-				<input
-					ref={ref}
-					className={clsx(
-						"w-full px-4 py-2 rounded-lg transition-colors duration-200",
-						"border focus:outline-none focus:ring-2 focus:ring-offset-2",
-						"disabled:opacity-50 disabled:cursor-not-allowed",
-						error
-							? "border-danger-500 focus:border-danger-500 focus:ring-danger-500"
-							: "border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-primary-500",
-						"bg-white dark:bg-gray-800 text-gray-900 dark:text-white",
-						className
-					)}
-					value={value}
-					onChange={handleChange}
-					{...props}
-				/>
+				{multiline ? (
+					<textarea
+						ref={ref}
+						className={inputClasses}
+						value={value}
+						onChange={handleChange}
+						rows={rows}
+						{...props}
+					/>
+				) : (
+					<input
+						ref={ref}
+						className={inputClasses}
+						value={value}
+						onChange={handleChange}
+						{...props}
+					/>
+				)}
 			</div>
 			{error && (
 				<p className="mt-1 text-sm text-danger-500">{error}</p>

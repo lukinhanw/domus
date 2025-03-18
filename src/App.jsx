@@ -15,6 +15,8 @@ const Login = lazy(() => import('./pages/Login'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const Users = lazy(() => import('./pages/Users'))
 const UserForm = lazy(() => import('./pages/UserForm'))
+const Imoveis = lazy(() => import('./pages/Imoveis'))
+const ImovelForm = lazy(() => import('./pages/ImovelForm'))
 
 function PrivateRoute({ children }) {
 	const { user } = useAuth()
@@ -34,7 +36,6 @@ export default function App() {
 		setToast(toastData)
 	}
 
-	// Limpa o toast após um tempo
 	useEffect(() => {
 		if (toast) {
 			const timer = setTimeout(() => {
@@ -44,13 +45,11 @@ export default function App() {
 		}
 	}, [toastKey])
 
-	// Rotas onde a Sidebar não deve aparecer
-	const noSidebarRoutes = ['/users/new', '/users/:id']
+	const noSidebarRoutes = ['/users/new', '/users/:id', '/imoveis/new', '/imoveis/:id']
 	const shouldShowSidebar = user && !noSidebarRoutes.some(route =>
 		location.pathname.startsWith(route.replace(':id', ''))
 	)
 
-	// Configuração das ações do header baseado na rota atual
 	const getHeaderActions = () => {
 		const path = location.pathname
 		
@@ -58,6 +57,13 @@ export default function App() {
 			return [{
 				label: 'Novo Usuário',
 				onClick: () => navigate('/users/new')
+			}]
+		}
+
+		if (path === '/imoveis') {
+			return [{
+				label: 'Novo Imóvel',
+				onClick: () => navigate('/imoveis/new')
 			}]
 		}
 		
@@ -95,6 +101,21 @@ export default function App() {
 							<Route path="/users/:id" element={
 								<PrivateRoute>
 									<UserForm setToast={showToast} />
+								</PrivateRoute>
+							} />
+							<Route path="/imoveis" element={
+								<PrivateRoute>
+									<Imoveis setToast={showToast} />
+								</PrivateRoute>
+							} />
+							<Route path="/imoveis/new" element={
+								<PrivateRoute>
+									<ImovelForm setToast={showToast} />
+								</PrivateRoute>
+							} />
+							<Route path="/imoveis/:id" element={
+								<PrivateRoute>
+									<ImovelForm setToast={showToast} />
 								</PrivateRoute>
 							} />
 							<Route path="/" element={<Navigate to="/dashboard" />} />

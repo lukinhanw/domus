@@ -256,6 +256,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                                 value={funcionarioOptions.find(option => option.value === formData.cargoFuncionario)}
                                                 onChange={(option) => setFormData({ ...formData, cargoFuncionario: option.value })}
                                                 styles={selectStyles}
+                                                menuPortalTarget={document.body}
+                                                menuPosition="fixed"
                                                 placeholder="Selecione o cargo"
                                                 isSearchable
                                                 noOptionsMessage={() => "Nenhum cargo encontrado"}
@@ -277,6 +279,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                                 value={proprietariosOptions.find(option => option.value === formData.proprietarioId)}
                                                 onChange={(option) => setFormData({ ...formData, proprietarioId: option?.value || '' })}
                                                 styles={selectStyles}
+                                                menuPortalTarget={document.body}
+                                                menuPosition="fixed"
                                                 placeholder="Selecione o proprietário"
                                                 isSearchable
                                                 noOptionsMessage={() => "Nenhum proprietário encontrado"}
@@ -365,6 +369,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                                         value={quadraOptions.find(option => option.value === formData.quadra)}
                                                         onChange={(option) => setFormData({ ...formData, quadra: option?.value || '' })}
                                                         styles={selectStyles}
+                                                        menuPortalTarget={document.body}
+                                                        menuPosition="fixed"
                                                         placeholder="Selecione a quadra"
                                                         isSearchable
                                                         isClearable
@@ -380,6 +386,8 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                                         value={loteOptions.find(option => option.value === formData.lote)}
                                                         onChange={(option) => setFormData({ ...formData, lote: option?.value || '' })}
                                                         styles={selectStyles}
+                                                        menuPortalTarget={document.body}
+                                                        menuPosition="fixed"
                                                         placeholder="Selecione o lote"
                                                         isSearchable
                                                         isClearable
@@ -398,13 +406,15 @@ export function UserForm({ user, onSubmit, onCancel }) {
                                                 />
                                                 <div>
                                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                        Bloco
+                                                        Bloco / Quadra
                                                     </label>
                                                     <Select
                                                         options={blocoOptions}
                                                         value={blocoOptions.find(option => option.value === formData.block)}
                                                         onChange={(option) => setFormData({ ...formData, block: option?.value || '' })}
                                                         styles={selectStyles}
+                                                        menuPortalTarget={document.body}
+                                                        menuPosition="fixed"
                                                         placeholder="Selecione o bloco"
                                                         isSearchable
                                                         isClearable
